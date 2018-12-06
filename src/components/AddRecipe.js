@@ -7,6 +7,7 @@ class AddRecipe extends React.Component {
         this.state = {name: '', ingredients: '',  instructions: ''};
     }
 
+    // Saves the value to the state
     handleChange = (event) => {
         this.setState(
             {[event.target.name]: event.target.value}

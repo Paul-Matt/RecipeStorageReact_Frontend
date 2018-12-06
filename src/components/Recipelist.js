@@ -23,7 +23,13 @@ class Recipelist extends Component {
 
     // The recipes from the JSON response data will be saved to the state, called recipes
     fetchRecipes = () => {
-        fetch(SERVER_URL + 'api/recipes')
+        // Read the token from the session storage
+        // and include it to Authorization header
+        const token = sessionStorage.getItem("jwt");
+        fetch(SERVER_URL + 'api/recipes',
+        {
+            headers: {'Authorization': token}
+        })
         .then((response) => response.json())
         .then((responseData) => {
             this.setState({
@@ -52,15 +58,19 @@ class Recipelist extends Component {
     // Delete  recipe. Sends the DELETE request to a recipe link,
     // and when the delete succeeds, refreshes the list page by calling the fetchRecipes() function
     onDelClick = (link) => {
-        console.log(link);
-        fetch(link, {
-            credentials: 'include',
-            method: 'DELETE'})
+        const token = sessionStorage.getItem("jwt");
+        //console.log(link);
+        fetch(link, 
+            {
+                method: 'DELETE',
+                headers: {'Authorization': token}
+            }
+        )
         .then(res => {
             toast.success("Recipe deleted", {
                 position: toast.POSITION.BOTTOM_LEFT
             });
-            //this.fetchRecipes();
+            this.fetchRecipes();
         })
         .catch(err => {
             toast.error("Error when deleting", {
@@ -71,29 +81,89 @@ class Recipelist extends Component {
     }
 
     // Add a new recipe
-  addRecipe(recipe) {
-    console.log(recipe);
-    fetch(SERVER_URL + 'api/recipes', 
-    {   method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(recipe)
-    })
-    .then(res => this.fetchRecipes())
-    .catch(err => console.error(err))
-  } 
+    addRecipe(recipe) {
+        const token = sessionStorage.getItem("jwt");
+        //console.log(recipe);
+        fetch(SERVER_URL + 'api/recipes', 
+        {   method: 'POST', 
+            headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+            },
+            body: JSON.stringify(recipe)
+        })
+        .then(res => this.fetchRecipes())
+        .catch(err => console.error(err))
+    } 
+
+     // Update recipe. The function gets two arguments, the updated recipe object and the request URL
+    updateRecipe(recipe, link) {
+        const token = sessionStorage.getItem("jwt");
+        fetch(link, 
+        { method: 'PUT', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            },
+            body: JSON.stringify(recipe)
+        })
+        .then( res =>
+            toast.success("Changes saved", {
+                position: toast.POSITION.BOTTOM_LEFT
+            })         
+        )
+        .catch( err => 
+            toast.error("Error when saving", {
+                position: toast.POSITION.BOTTOM_LEFT
+            })             
+        )
+    }
+
+    // The cell renderer changes the table cells to editable.
+    // The cell is the div element and the contentEditable attribute makes it editable.
+    // SuppressContentEditableWarning suppresses the warning that comes when 
+    // the element with the child is marked to be editable. The function in onBlur is 
+    // executed when the user leaves the table cell, and this is where the state will be updated
+    renderEditable = (cellInfo) => {
+        return (
+          <div
+            style={{ backgroundColor: "#fafafa" }}
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={e => {
+              const data = [...this.state.recipes];
+              data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+              this.setState({ recipes: data });
+            }}
+            dangerouslySetInnerHTML={{
+              __html: this.state.recipes[cellInfo.index][cellInfo.column.id]
+            }}                
+          />
+        );
+      }  
 
     render() {
         const columns = [{
-        Header: 'Name',
-        accessor: 'name'
+            Header: 'Name',
+            accessor: 'name',
+            Cell: this.renderEditable
         }, {
-        Header: 'Ingredients',
-        accessor: 'ingredients',
+            Header: 'Ingredients',
+            accessor: 'ingredients',
+            Cell: this.renderEditable
         }, {
-        Header: 'Instructions',
-        accessor: 'instructions',
+            Header: 'Instructions',
+            accessor: 'instructions',
+            Cell: this.renderEditable
+        }, {
+            id: 'savebutton',
+            sortable: false,
+            filterable: false,
+            width: 100,
+            accessor: '_links.self.href',
+            Cell: ({value, row}) =>
+            (<button onClick={()=>{this.updateRecipe(row, value)}}>
+            Save</button>)
         }, {
             id: 'delbutton',
             sortable: false,
@@ -105,14 +175,14 @@ class Recipelist extends Component {
             }]
 
         return (
-        <div className="App">
-        <AddRecipe addRecipe={this.addRecipe} fetchRecipes={this.fetchRecipes}/>
-        <ReactTable data={this.state.recipes} columns={columns}
-        filterable={true} pageSize={10}/>
-        <ToastContainer autoClose={1500}/>
-        </div>
+            <div className="App">
+                <AddRecipe addRecipe={this.addRecipe} fetchRecipes={this.fetchRecipes}/>
+                <ReactTable data={this.state.recipes} columns={columns}
+                    filterable={true} pageSize={10}/>
+                <ToastContainer autoClose={1500}/>
+            </div>
         );
-        }
+    }
 
     /* // Using the map function to transform recipe objects into table rows, and adding the table element
     render() {
