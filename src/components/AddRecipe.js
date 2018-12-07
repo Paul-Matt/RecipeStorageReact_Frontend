@@ -1,5 +1,7 @@
 import React from 'react';
 import SkyLight from 'react-skylight';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 
 class AddRecipe extends React.Component {
     constructor(props) {
@@ -35,15 +37,19 @@ class AddRecipe extends React.Component {
                 <SkyLight hideOnOverlayClicked ref="addDialog">
                     <h3>New recipe</h3>
                     <form>
-                        <input type="text" placeholder="Name"  name="name" onChange={this.handleChange}/><br/>    
-                        <input type="text" placeholder="Ingredients" name="ingredients" onChange={this.handleChange}/><br/>
-                        <input type="text" placeholder="Instructions" name="instructions" onChange={this.handleChange}/><br/>
-                        <button onClick={this.handleSubmit}>Save</button>        
-                        <button onClick={this.cancelSubmit}>Cancel</button>        
+                    <TextField label="Name" multiline rows="2" placeholder="Name"  name="name" onChange={this.handleChange}/><br/>    
+                    <TextField label="Ingredients" multiline rows="4" placeholder="Ingredients" name="ingredients" onChange={this.handleChange}/><br/>
+                    <TextField label="Instructions" multiline rows="4" placeholder="Instructions" name="instructions" onChange={this.handleChange}/><br/><br/>
+                        <Button variant="outlined" color="primary"
+                        onClick={this.handleSubmit}>Save</Button>
+                        <Button variant="outlined" color="secondary"
+                        onClick={this.cancelSubmit}>Cancel</Button> 
                     </form>     
                 </SkyLight>
                 <div>
-                    <button style={{'margin': '10px'}} onClick={() => this.refs.addDialog.show()}>New recipe</button>
+                <Button variant="raised" color="primary"
+                style={{'margin': '10px'}}
+                onClick={() => this.refs.addDialog.show()}>New recipe</Button>
                 </div>
             </div>
         );

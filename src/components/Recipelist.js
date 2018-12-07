@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import {SERVER_URL} from '../constants.js'
 import ReactTable from "react-table";
 import 'react-table/react-table.css';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+//import { ToastContainer, toast } from 'react-toastify';
+//import 'react-toastify/dist/ReactToastify.css';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Snackbar from '@material-ui/core/Snackbar';
 import AddRecipe from './AddRecipe.js';
 
 class Recipelist extends Component {
@@ -13,7 +16,7 @@ class Recipelist extends Component {
     // Creating recipes array
     constructor(props) {
         super(props);
-        this.state = { recipes: []};
+        this.state = { recipes: [], open: false, message: ''};
     }
 
 
@@ -67,16 +70,18 @@ class Recipelist extends Component {
             }
         )
         .then(res => {
-            toast.success("Recipe deleted", {
+           /* toast.success("Recipe deleted", {
                 position: toast.POSITION.BOTTOM_LEFT
-            });
+            }); */
+            this.setState({open: true, message: 'Recipe deleted'});
             this.fetchRecipes();
         })
         .catch(err => {
-            toast.error("Error when deleting", {
+            /* toast.error("Error when deleting", {
                 position: toast.POSITION.BOTTOM_LEFT
-            });
-        console.error(err)
+            }); */
+            this.setState({open: true, message: 'Error when deleting'});
+            console.error(err)
         })
     }
 
@@ -108,14 +113,16 @@ class Recipelist extends Component {
             body: JSON.stringify(recipe)
         })
         .then( res =>
-            toast.success("Changes saved", {
+            /* toast.success("Changes saved", {
                 position: toast.POSITION.BOTTOM_LEFT
-            })         
+            }) */   
+            this.setState({open: true, message: 'Changes saved'})
         )
         .catch( err => 
-            toast.error("Error when saving", {
+            /* toast.error("Error when saving", {
                 position: toast.POSITION.BOTTOM_LEFT
-            })             
+            })  */  
+            this.setState({open: true, message: 'Error when saving'})
         )
     }
 
@@ -142,6 +149,11 @@ class Recipelist extends Component {
         );
       }  
 
+      // Closing snackbar
+      handleClose = (event, reason) => {
+        this.setState({ open: false });
+      };
+
     render() {
         const columns = [{
             Header: 'Name',
@@ -161,25 +173,32 @@ class Recipelist extends Component {
             filterable: false,
             width: 100,
             accessor: '_links.self.href',
-            Cell: ({value, row}) =>
-            (<button onClick={()=>{this.updateRecipe(row, value)}}>
-            Save</button>)
+            Cell: ({value, row}) => (<Button size="small" variant="flat"
+            color="primary" onClick={ ()=>{this.updateRecipe(row, value)}}>
+            Save</Button>)
         }, {
             id: 'delbutton',
             sortable: false,
             filterable: false,
             width: 100,
             accessor: '_links.self.href',
-            Cell: ({value}) => (<button onClick=
-                {()=>{this.confirmDelete(value)}}>Delete</button>)
+            Cell: ({value}) => (<Button size="small" variant="flat" color="secondary" 
+            onClick={ ()=>{this.confirmDelete(value)}}>Delete</Button>)
             }]
 
         return (
             <div className="App">
-                <AddRecipe addRecipe={this.addRecipe} fetchRecipes={this.fetchRecipes}/>
+                <Grid container>
+                    <Grid item>
+                        <AddRecipe addRecipe={this.addRecipe} fetchRecipes={this.fetchRecipes}/>
+                    </Grid>
+                </Grid>
                 <ReactTable data={this.state.recipes} columns={columns}
                     filterable={true} pageSize={10}/>
-                <ToastContainer autoClose={1500}/>
+                <Snackbar
+                    style = {{width: 300, color: 'green'}}
+                    open={this.state.open} onClose={this.handleClose}
+                    autoHideDuration={1500} message={this.state.message} />
             </div>
         );
     }
