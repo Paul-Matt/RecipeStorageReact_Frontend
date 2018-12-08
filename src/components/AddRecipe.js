@@ -47,7 +47,7 @@ class AddRecipe extends React.Component {
                     </form>     
                 </SkyLight>
                 <div>
-                <Button variant="raised" color="primary"
+                <Button variant="contained" color="primary"
                 style={{'margin': '10px'}}
                 onClick={() => this.refs.addDialog.show()}>New recipe</Button>
                 </div>

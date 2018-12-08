@@ -134,7 +134,7 @@ class Recipelist extends Component {
     renderEditable = (cellInfo) => {
         return (
           <div
-            style={{ backgroundColor: "#fafafa" }}
+            style={{ backgroundColor: "#fafafa", height: "250px" }}
             contentEditable
             suppressContentEditableWarning
             onBlur={e => {
@@ -158,14 +158,17 @@ class Recipelist extends Component {
         const columns = [{
             Header: 'Name',
             accessor: 'name',
+            style: { 'white-space': 'unset' },
             Cell: this.renderEditable
         }, {
             Header: 'Ingredients',
             accessor: 'ingredients',
+            style: { 'white-space': 'normal' },
             Cell: this.renderEditable
         }, {
             Header: 'Instructions',
             accessor: 'instructions',
+            style: { 'white-space': 'normal' },
             Cell: this.renderEditable
         }, {
             id: 'savebutton',
@@ -173,7 +176,7 @@ class Recipelist extends Component {
             filterable: false,
             width: 100,
             accessor: '_links.self.href',
-            Cell: ({value, row}) => (<Button size="small" variant="flat"
+            Cell: ({value, row}) => (<Button size="small" variant="text"
             color="primary" onClick={ ()=>{this.updateRecipe(row, value)}}>
             Save</Button>)
         }, {
@@ -182,7 +185,7 @@ class Recipelist extends Component {
             filterable: false,
             width: 100,
             accessor: '_links.self.href',
-            Cell: ({value}) => (<Button size="small" variant="flat" color="secondary" 
+            Cell: ({value}) => (<Button size="small" variant="text" color="secondary" 
             onClick={ ()=>{this.confirmDelete(value)}}>Delete</Button>)
             }]
 
@@ -193,8 +196,21 @@ class Recipelist extends Component {
                         <AddRecipe addRecipe={this.addRecipe} fetchRecipes={this.fetchRecipes}/>
                     </Grid>
                 </Grid>
-                <ReactTable data={this.state.recipes} columns={columns}
-                    filterable={true} pageSize={10}/>
+                <ReactTable 
+                    data={this.state.recipes} 
+                    columns={columns}
+                    filterable={true} 
+                    pageSize={10}
+                    className='react-table'
+                    //SubComponent={(row) => { console.log("row",row); return null; }}
+                    /*SubComponent={row => {
+                        return (
+                            <span>
+                                {row.value}
+                            </span>
+                            );
+                    }} */
+                />
                 <Snackbar
                     style = {{width: 300, color: 'green'}}
                     open={this.state.open} onClose={this.handleClose}
@@ -203,6 +219,7 @@ class Recipelist extends Component {
         );
     }
 
+    
     /* // Using the map function to transform recipe objects into table rows, and adding the table element
     render() {
         const tableRows = this.state.recipes.map((recipe, index) =>
