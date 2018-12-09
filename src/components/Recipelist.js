@@ -10,13 +10,14 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Snackbar from '@material-ui/core/Snackbar';
 import AddRecipe from './AddRecipe.js';
+import Login from './Login';
 
 class Recipelist extends Component {
 
     // Creating recipes array
     constructor(props) {
         super(props);
-        this.state = { recipes: [], open: false, message: ''};
+        this.state = { recipes: [], open: false, message: '', isAuthenticated: null};
     }
 
 
@@ -154,21 +155,27 @@ class Recipelist extends Component {
         this.setState({ open: false });
       };
 
+      // Log out
+      logout = () => {
+        sessionStorage.removeItem("jwt");
+        this.setState({isAuthenticated: false});
+        }
+
     render() {
         const columns = [{
             Header: 'Name',
             accessor: 'name',
-            style: { 'white-space': 'unset' },
+            style: { 'whiteSpace': 'unset' },
             Cell: this.renderEditable
         }, {
             Header: 'Ingredients',
             accessor: 'ingredients',
-            style: { 'white-space': 'normal' },
+            style: { 'whiteSpace': 'normal' },
             Cell: this.renderEditable
         }, {
             Header: 'Instructions',
             accessor: 'instructions',
-            style: { 'white-space': 'normal' },
+            style: { 'whiteSpace': 'normal' },
             Cell: this.renderEditable
         }, {
             id: 'savebutton',
@@ -189,34 +196,43 @@ class Recipelist extends Component {
             onClick={ ()=>{this.confirmDelete(value)}}>Delete</Button>)
             }]
 
-        return (
-            <div className="App">
-                <Grid container>
-                    <Grid item>
-                        <AddRecipe addRecipe={this.addRecipe} fetchRecipes={this.fetchRecipes}/>
+        if (this.state.isAuthenticated === false) {
+            return (<Login />)
+            }
+        else {
+            return (
+                <div className="App">
+                    <Grid container>
+                        <Grid item>
+                            <AddRecipe addRecipe={this.addRecipe} fetchRecipes={this.fetchRecipes}/>
+                        </Grid>
+                        <Grid item style={{padding: 10}}>
+                        <Button variant="contained" color="secondary"
+                            onClick={this.logout}>Log out</Button>
+                        </Grid>
                     </Grid>
-                </Grid>
-                <ReactTable 
-                    data={this.state.recipes} 
-                    columns={columns}
-                    filterable={true} 
-                    pageSize={10}
-                    className='react-table'
-                    //SubComponent={(row) => { console.log("row",row); return null; }}
-                    /*SubComponent={row => {
-                        return (
-                            <span>
-                                {row.value}
-                            </span>
-                            );
-                    }} */
-                />
-                <Snackbar
-                    style = {{width: 300, color: 'green'}}
-                    open={this.state.open} onClose={this.handleClose}
-                    autoHideDuration={1500} message={this.state.message} />
-            </div>
-        );
+                    <ReactTable 
+                        data={this.state.recipes} 
+                        columns={columns}
+                        filterable={true} 
+                        pageSize={10}
+                        className='react-table'
+                        //SubComponent={(row) => { console.log("row",row); return null; }}
+                        /*SubComponent={row => {
+                            return (
+                                <span>
+                                    {row.value}
+                                </span>
+                                );
+                        }} */
+                    />
+                    <Snackbar
+                        style = {{width: 300, color: 'green'}}
+                        open={this.state.open} onClose={this.handleClose}
+                        autoHideDuration={1500} message={this.state.message} />
+                </div>
+            );
+        }
     }
 
     
