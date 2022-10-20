@@ -2,4 +2,4 @@
 
 The goal was to have at least two tables in database, separate back end, authentication in front end, rest and CRUD.
 
-The app is running in Heroku: [Recipelist React](https://recipe-storage-react.herokuapp.com/)
+~~The app is running in Heroku: [Recipelist React](https://recipe-storage-react.herokuapp.com/)~~
